@@ -7,6 +7,8 @@ package project;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -319,9 +321,17 @@ class Tiles {
     } 
     
     protected void setHscore(){
+        try{
         if (score>Hscore)
             this.Hscore = this.score;
-        
+        BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\user\\Documents\\NetBeansProjects\\Project\\src\\resources"));
+        writer.newLine();
+        writer.write(Integer.toString(Hscore));
+        writer.flush();
+        writer.close();
+        }catch(Exception e){
+            
+        }
     }
     
     public int getScore(){

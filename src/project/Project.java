@@ -11,7 +11,7 @@ public class Project {
         java.awt.EventQueue.invokeLater(new Runnable(){
             @Override
                     public void run(){
-                        new Game2048().setVisible(true);
+                        new Home().setVisible(true);
                     }
         });
     }  

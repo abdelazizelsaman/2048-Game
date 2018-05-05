@@ -170,6 +170,8 @@ public class Game2048 extends JFrame{
     class ActionListener_Menu implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e){
+            Game2048.super.setVisible(false);
+            new Home().setVisible(true); 
             pnlTiles.setFocusable(true);
         }
     }
