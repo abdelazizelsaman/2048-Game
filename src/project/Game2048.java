@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package project;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,11 +16,10 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
 
-/**
- *
- * @author user
- */
+
 public class Game2048 extends JFrame{
 
     private Tiles t = new Tiles();
@@ -37,18 +32,21 @@ public class Game2048 extends JFrame{
     //Define & instantiate JLabels
     private JLabel lbl2048 = new JLabel("2048");
     private JLabel lblScore = new JLabel("SCORE");
-    private JLabel lblHscore = new JLabel("HIGHT SCORE");
-    private JLabel txtScore = new JLabel(Integer.toString(t.getScore()));
-    private JLabel txtHscore = new JLabel(Integer.toString(t.getHscore()));
+    private JLabel lblHscore = new JLabel("HIGH SCORE");
+    private JLabel txtScore = new JLabel(Integer.toString(t.s.getScore()));
+    private JLabel txtHscore = new JLabel(Integer.toString(t.s.getHscore()));
     //Define & instantaite JButtom
-    private JButton btnRestart = new JButton("R");
-    private JButton btnMenu = new JButton("M");
-
+    private JButton btnRestart = new JButton(new ImageIcon(getClass().getResource("/resources/restart.png")));
+    private JButton btnMenu = new JButton(new ImageIcon(getClass().getResource("/resources/menu.png")));
+    private JFrame win = new JFrame("Congartulations");
+    
     //Define & instantaite Conatainers
     private Container con = new Container();
     
     public Game2048(){
-        
+        t.s.setHscore();
+        txtHscore.setText(Integer.toString(t.s.getHscore()));
+        txtHscore.repaint();
         gui();
         motion();
         
@@ -56,7 +54,7 @@ public class Game2048 extends JFrame{
     
     private void gui(){
         // Set the JFrame Properties
-        this.setTitle("2048 v1.0");
+        this.setTitle("2048");
         this.setBounds(650, 200, 320, 440);
         this.setResizable(false);
         this.setLayout(null);
@@ -69,44 +67,54 @@ public class Game2048 extends JFrame{
         this.add(pnlBtns);
         this.add(pnlTiles);
         this.add(pnl2048);
+        this.setBackground(Color.decode("#969b9c"));
 
         // Set Score JPanel Properties
         pnlScore.setLayout(new GridLayout(2,1));
         pnlScore.setBounds(148, 48, 40, 30);
-        pnlScore.setBackground(Color.WHITE);
+        pnlScore.setBackground(Color.decode("#969b9c"));
+        lblScore.setForeground(Color.white);
+        txtScore.setForeground(Color.white);
         pnlScore.add(lblScore);
         pnlScore.add(txtScore);
-
         lblScore.setFont(lblScore.getFont().deriveFont(10.0f));
+        txtScore.setAlignmentX(SwingConstants.RIGHT);
         
         // Set HScore JPanel Properties
         pnlHscore.setLayout(new GridLayout(2,1));
         pnlHscore.setBounds(200, 48, 70, 30);
-        pnlHscore.setBackground(Color.WHITE);
+        pnlHscore.setBackground(Color.decode("#969b9c"));
+        lblHscore.setForeground(Color.white);
+        txtHscore.setForeground(Color.white);        
         pnlHscore.add(lblHscore);
         pnlHscore.add(txtHscore);
-        
         lblHscore.setFont(lblHscore.getFont().deriveFont(10.0f));
+        txtHscore.setAlignmentX(SwingConstants.CENTER);
         
         // Set buttons JPanel Properties
-        pnlBtns.setLayout(new GridLayout(1,2));
-        pnlBtns.setBounds(200, 90, 70, 30);
+        pnlBtns.setLayout(null);
+        pnlBtns.setBounds(200, 95, 70, 30);
         pnlBtns.add(btnMenu);
         pnlBtns.add(btnRestart);
-        btnMenu.setFont(btnMenu.getFont().deriveFont(10.0f));
-        btnRestart.setFont(btnRestart.getFont().deriveFont(10.0f));
+        btnMenu.setCursor(new Cursor(12));
+        btnRestart.setCursor(new Cursor(12));
+        btnMenu.setBounds(0,0,30,30);
+        btnRestart.setBounds(40,0,30,30);
+        pnlBtns.setBackground(Color.decode("#969b9c"));
         
         // Set 2048 JPanel Properties
         pnl2048.setLayout(new BorderLayout());
         pnl2048.setBounds(40, 40, 80, 40);
         pnl2048.add(lbl2048,BorderLayout.CENTER);
-        
         lbl2048.setFont(lbl2048.getFont().deriveFont(36.0f));
+        lbl2048.setForeground(Color.white);
+        pnl2048.setBackground(Color.decode("#969b9c"));
       
         // Set Tiles JPanel Properties
         pnlTiles.setLayout(new GridLayout(3,3));
         pnlTiles.setBounds(40, 140, tileDim.GRID_SIZE, tileDim.GRID_SIZE);
         pnlTiles.setBorder(BorderFactory.createLineBorder( Color.BLUE, 3, true));
+       
 
     } // gui
     
@@ -142,15 +150,24 @@ public class Game2048 extends JFrame{
             t.move();
             t.generateTile(t.checkMove());
             // Show the Score
-            txtScore.setText(Integer.toString(t.getScore()));
-            t.setHscore();
-            txtHscore.setText(Integer.toString(t.getHscore()));
+            txtScore.setText(Integer.toString(t.s.getScore()));
+            t.s.setHscore();
+            txtHscore.setText(Integer.toString(t.s.getHscore()));
             // Repaint the Frame
             repaint();
             // Check Gameover condition
             if(t.gameOver())
                 JOptionPane.showMessageDialog(null, "Game Over!");
-       }
+            // Check winning condition
+            if(t.winner() && !tileDim.win){
+               JOptionPane.showMessageDialog(win, 
+        "You have Completed the 2048 Game !!! ", 
+        "Congratulation !!", 
+        JOptionPane.INFORMATION_MESSAGE,
+        new ImageIcon(Game2048.class.getResource("/resources/drake.png"))); 
+               tileDim.win = true;
+            }
+        }
             
     }// class KeyAdapter_tile 
 
@@ -158,23 +175,23 @@ public class Game2048 extends JFrame{
         @Override
         public void actionPerformed(ActionEvent e){
             pnlTiles.setFocusable(true);
-            t.restartgame();
-            txtScore.setText(Integer.toString(t.getScore()));
+            t.restartGame();
+            txtScore.setText(Integer.toString(t.s.getScore()));
             pnlTiles.repaint();
             txtScore.repaint();
             setFocusable(false);
             
         }
-    }
+    }// ActionListener_Restart
     
     class ActionListener_Menu implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e){
             Game2048.super.setVisible(false);
-            new Home().setVisible(true); 
+            new Menu().setVisible(true); 
             pnlTiles.setFocusable(true);
         }
-    }
+    }// ActionListener_Menu
 }// Class Game2048
 
     

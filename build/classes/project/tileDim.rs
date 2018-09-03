@@ -1,3 +1,2 @@
 project.swapDirection
-project.sawpDirection
 project.tileDim

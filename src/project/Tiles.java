@@ -1,27 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package project;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- *
- * @author user
- */
 class Tiles {
+    protected Score s = new Score(0,0);
     private Random random = new Random();
     private ArrayList TilesArray = new ArrayList();
     private swapDirection swapDir = swapDirection.RIGHT;
-    private int score = 0;
-    private int Hscore = 0;
     private boolean validMove = true;
     private boolean arrayCompare = true;
     protected int[][] TilesPosition = new int[][]{
@@ -35,238 +23,159 @@ class Tiles {
         generateTile(true);
     } // tile
     
+    protected void moveCol(){
+        int row ;
+        int col = 2;
+        int factor ;
+        if (swapDir == swapDirection.RIGHT){
+            factor = 1;
+        }else{
+            col = 0;
+            factor = -1;
+        }
+        
+        for( row=0 ; row<3 ; row++){
+                        // Check if 1st tile in column is zero
+            if(TilesPosition[row][col] == 0){
+                if(TilesPosition[row][col-factor] == 0){
+                    TilesPosition[row][col] = TilesPosition[row][col-2*factor];
+                    TilesPosition[row][col-2*factor] = 0;
+
+                }else{
+                    if(TilesPosition[row][col-factor] == TilesPosition[row][col-2*factor]){
+                        TilesPosition[row][col] = tileMerge(TilesPosition[row][col-factor]);
+                        s.addScore(TilesPosition[row][col]);
+                        TilesPosition[row][col-factor] = 0;
+                        TilesPosition[row][col-2*factor] = 0;
+
+                    }else{
+                        TilesPosition[row][col] = TilesPosition[row][col-factor];
+                        TilesPosition[row][col-factor] = TilesPosition[row][col-2*factor];
+                        TilesPosition[row][col-2*factor] = 0;
+
+                    }
+                }
+            }
+            // Check if the 2nd tile in column is zero
+            else if(TilesPosition[row][col-factor] == 0){
+                    // Check if the 2nd & 3rd tiles are equal
+                    if(TilesPosition[row][col] == TilesPosition[row][col-2*factor]){
+                        TilesPosition[row][col] = tileMerge(TilesPosition[row][col-2*factor]);
+                        s.addScore(TilesPosition[row][col]);
+                        TilesPosition[row][col-2*factor] = 0;
+
+                    }else{
+                        TilesPosition[row][col-factor] = TilesPosition[row][col-2*factor];
+                        TilesPosition[row][col-2*factor] = 0;
+
+                    }
+                    // check if the 1st & 2nd tile are equal
+                }else if(TilesPosition[row][col-factor] != 0 && TilesPosition[row][col] == TilesPosition[row][col-factor]){
+                        TilesPosition[row][col] = tileMerge(TilesPosition[row][col-factor]);
+                        s.addScore(TilesPosition[row][col]);
+                        TilesPosition[row][col-factor] = TilesPosition[row][col-2*factor];
+                        TilesPosition[row][col-2*factor] = 0;
+
+                    }else if(TilesPosition[row][col-factor] == TilesPosition[row][col-2*factor]){
+                            TilesPosition[row][col-factor] = tileMerge(TilesPosition[row][col-2*factor]);
+                            s.addScore(TilesPosition[row][col-factor]);
+                            TilesPosition[row][col-2*factor] = 0;
+
+            }else if(TilesPosition[row][col] != 0 && TilesPosition[row][col] == TilesPosition[row][col-factor]){
+                TilesPosition[row][col] = tileMerge(TilesPosition[row][col-factor]);
+                s.addScore(TilesPosition[row][col]);
+                TilesPosition[row][col-factor] = 0;
+            }
+        }
+        
+    }// moveCol
+    
+    protected void moveRow(){
+        int row = 2;
+        int col = 0;
+        int factor = 0;
+        if (swapDir == swapDirection.DOWN){
+            factor = 1;
+        }else{
+            row = 0;
+            factor = -1;
+        }
+        
+        for(col=0 ; col<3 ; col++){
+                // Check if 1st tile in column is zero
+                if(TilesPosition[row][col] == 0){
+                        if(TilesPosition[row-factor][col] == 0){
+                                TilesPosition[row][col] = TilesPosition[row-2*factor][col];
+                                TilesPosition[row-2*factor][col] = 0;
+
+                        }else{
+                                if(TilesPosition[row-factor][col] == TilesPosition[row-2*factor][col]){
+                                        TilesPosition[row][col] = tileMerge(TilesPosition[row-factor][col]);
+                                        s.addScore(TilesPosition[row][col]);
+                                        TilesPosition[row-factor][col] = 0;
+                                        TilesPosition[row-2*factor][col] = 0;
+
+                                }else{
+                                        TilesPosition[row][col] = TilesPosition[row-factor][col];
+                                        TilesPosition[row-factor][col] = TilesPosition[row-2*factor][col];
+                                        TilesPosition[row-2*factor][col] = 0;
+
+                                }
+                        }
+                }
+                // Check if the 2nd tile in column is zero
+                else if(TilesPosition[row-factor][col] == 0){
+                                // Check if the 2nd & 3rd tiles are equal
+                                if(TilesPosition[row][col] == TilesPosition[row-2*factor][col]){
+                                        TilesPosition[row][col] = tileMerge(TilesPosition[row-2*factor][col]);
+                                        s.addScore(TilesPosition[row][col]);
+                                        TilesPosition[row-2*factor][col] = 0;
+
+                                }else{
+                                        TilesPosition[row-factor][col] = TilesPosition[row-2*factor][col];
+                                        TilesPosition[row-2*factor][col] = 0;
+
+                                }
+                                // check if the 1st & 2nd tile are equal
+                        }else if(TilesPosition[row-factor][col] != 0 && TilesPosition[row][col] == TilesPosition[row-factor][col]){
+                                        TilesPosition[row][col] = tileMerge(TilesPosition[row-factor][col]);
+                                        s.addScore(TilesPosition[row][col]);
+                                        TilesPosition[row-factor][col] = TilesPosition[row-2*factor][col];
+                                        TilesPosition[row-2*factor][col] = 0;
+
+                                }else if(TilesPosition[row-factor][col] == TilesPosition[row-2*factor][col]){
+                                                TilesPosition[row-factor][col] = tileMerge(TilesPosition[row-2*factor][col]);
+                                                s.addScore(TilesPosition[row-factor][col]);
+                                                TilesPosition[row-2*factor][col] = 0;
+
+                                }else if(TilesPosition[row][col] != 0 && TilesPosition[row][col] == TilesPosition[row-factor][col]){
+                                                TilesPosition[row][col] = tileMerge(TilesPosition[row-factor][col]);
+                                                s.addScore(TilesPosition[row][col]);
+                                                TilesPosition[row-factor][col] = 0;
+                }
+        }
+}// moveRow
+    
     protected void move(){
     int [][] oldTilesPosition = new int[3][3];
-    arrayOp(TilesPosition, oldTilesPosition, "Copy");
+    arrayCopy(TilesPosition, oldTilesPosition);
         int row = 0, col = 0;
         switch(this.swapDir){
 
             case RIGHT:
-                col = 2;
-                    for( row=0 ; row<3 ; row++){
-                        // Check if 1st tile in column is zero
-                        if(TilesPosition[row][col] == 0){
-                            if(TilesPosition[row][col-1] == 0){
-                                TilesPosition[row][col] = TilesPosition[row][col-2];
-                                TilesPosition[row][col-2] = 0;
-                                
-                            }else{
-                                if(TilesPosition[row][col-1] == TilesPosition[row][col-2]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row][col-1]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row][col-1] = 0;
-                                    TilesPosition[row][col-2] = 0;
-                                    
-                                }else{
-                                    TilesPosition[row][col] = TilesPosition[row][col-1];
-                                    TilesPosition[row][col-1] = TilesPosition[row][col-2];
-                                    TilesPosition[row][col-2] = 0;
-                                    
-                                }
-                            }
-                        }
-                        // Check if the 2nd tile in column is zero
-                        else if(TilesPosition[row][col-1] == 0){
-                                // Check if the 2nd & 3rd tiles are equal
-                                if(TilesPosition[row][col] == TilesPosition[row][col-2]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row][col-2]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row][col-2] = 0;
-                                    
-                                }else{
-                                    TilesPosition[row][col-1] = TilesPosition[row][col-2];
-                                    TilesPosition[row][col-2] = 0;
-                                    
-                                }
-                                // check if the 1st & 2nd tile are equal
-                            }else if(TilesPosition[row][col-1] != 0 && TilesPosition[row][col] == TilesPosition[row][col-1]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row][col-1]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row][col-1] = TilesPosition[row][col-2];
-                                    TilesPosition[row][col-2] = 0;
-                                    
-                                }else if(TilesPosition[row][col-1] == TilesPosition[row][col-2]){
-                                        TilesPosition[row][col-1] = merge(TilesPosition[row][col-2]);
-                                        score += TilesPosition[row][col-1];
-                                        TilesPosition[row][col-2] = 0;
-                                           
-                        }else if(TilesPosition[row][col] != 0 && TilesPosition[row][col] == TilesPosition[row][col-1]){
-                            TilesPosition[row][col] = merge(TilesPosition[row][col-1]);
-                            score += TilesPosition[row][col];
-                            TilesPosition[row][col-1] = 0;
-                        }
-                    }
+                moveCol();
                 break;
                 
             case LEFT:
-                col = 0;
-                    for(row=0 ; row<3 ; row++){
-                        // Check if 1st tile in column is zero
-                        if(TilesPosition[row][col] == 0){
-                            if(TilesPosition[row][col+1] == 0){
-                                TilesPosition[row][col] = TilesPosition[row][col+2];
-                                TilesPosition[row][col+2] = 0;
-                                
-                            }else{
-                                if(TilesPosition[row][col+1] == TilesPosition[row][col+2]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row][col+1]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row][col+1] = 0;
-                                    TilesPosition[row][col+2] = 0;
-                                    
-                                }else{
-                                    TilesPosition[row][col] = TilesPosition[row][col+1];
-                                    TilesPosition[row][col+1] = TilesPosition[row][col+2];
-                                    TilesPosition[row][col+2] = 0;
-                                    
-                                }
-                            }
-                        }
-                        // Check if the 2nd tile in column is zero
-                        else if(TilesPosition[row][col+1] == 0){
-                                // Check if the 2nd & 3rd tiles are equal
-                                if(TilesPosition[row][col] == TilesPosition[row][col+2]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row][col+2]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row][col+2] = 0;
-                                    
-                                }else{
-                                    TilesPosition[row][col+1] = TilesPosition[row][col+2];
-                                    TilesPosition[row][col+2] = 0;
-                                    
-                                }
-                                // check if the 1st & 2nd tile are equal
-                            }else if(TilesPosition[row][col+1] != 0 && TilesPosition[row][col] == TilesPosition[row][col+1]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row][col+1]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row][col+1] = TilesPosition[row][col+2];
-                                    TilesPosition[row][col+2] = 0;
-                                    
-                                }else if(TilesPosition[row][col+1] == TilesPosition[row][col+2]){
-                                        TilesPosition[row][col+1] = merge(TilesPosition[row][col+2]);
-                                        score += TilesPosition[row][col+1];
-                                        TilesPosition[row][col+2] = 0;
-                                
-                        }else if(TilesPosition[row][col] != 0 && TilesPosition[row][col] == TilesPosition[row][col+1]){
-                            TilesPosition[row][col] = merge(TilesPosition[row][col+1]);
-                            score += TilesPosition[row][col];
-                            TilesPosition[row][col+1] = 0;
-                        }
-                    }
+                moveCol();
                 break;
                 
             case DOWN:
-                row = 2;
-                    for(col=0 ; col<3 ; col++){
-                        // Check if 1st tile in column is zero
-                        if(TilesPosition[row][col] == 0){
-                            if(TilesPosition[row-1][col] == 0){
-                                TilesPosition[row][col] = TilesPosition[row-2][col];
-                                TilesPosition[row-2][col] = 0;
-                                
-                            }else{
-                                if(TilesPosition[row-1][col] == TilesPosition[row-2][col]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row-1][col]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row-1][col] = 0;
-                                    TilesPosition[row-2][col] = 0;
-                                    
-                                }else{
-                                    TilesPosition[row][col] = TilesPosition[row-1][col];
-                                    TilesPosition[row-1][col] = TilesPosition[row-2][col];
-                                    TilesPosition[row-2][col] = 0;
-                                    
-                                }
-                            }
-                        }
-                        // Check if the 2nd tile in column is zero
-                        else if(TilesPosition[row-1][col] == 0){
-                                // Check if the 2nd & 3rd tiles are equal
-                                if(TilesPosition[row][col] == TilesPosition[row-2][col]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row-2][col]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row-2][col] = 0;
-                                    
-                                }else{
-                                    TilesPosition[row-1][col] = TilesPosition[row-2][col];
-                                    TilesPosition[row-2][col] = 0;
-                                    
-                                }
-                                // check if the 1st & 2nd tile are equal
-                            }else if(TilesPosition[row-1][col] != 0 && TilesPosition[row][col] == TilesPosition[row-1][col]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row-1][col]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row-1][col] = TilesPosition[row-2][col];
-                                    TilesPosition[row-2][col] = 0;
-                                    
-                                }else if(TilesPosition[row-1][col] == TilesPosition[row-2][col]){
-                                        TilesPosition[row-1][col] = merge(TilesPosition[row-2][col]);
-                                        score += TilesPosition[row-1][col];
-                                        TilesPosition[row-2][col] = 0;
-                                        
-                                }else if(TilesPosition[row][col] != 0 && TilesPosition[row][col] == TilesPosition[row-1][col]){
-                                        TilesPosition[row][col] = merge(TilesPosition[row-1][col]);
-                                        score += TilesPosition[row][col];
-                                        TilesPosition[row-1][col] = 0;
-                        }
-                    }
+                moveRow();
                 break;
                 
             case UP:
-                row = 0;
-                    for(col=0 ; col<3 ; col++){
-                        // Check if 1st tile in column is zero
-                        if(TilesPosition[row][col] == 0){
-                            if(TilesPosition[row+1][col] == 0){
-                                TilesPosition[row][col] = TilesPosition[row+2][col];
-                                TilesPosition[row+2][col] = 0;
-                                
-                            }else{
-                                if(TilesPosition[row+1][col] == TilesPosition[row+2][col]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row+1][col]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row+1][col] = 0;
-                                    TilesPosition[row+2][col] = 0;
-                                    
-                                }else{
-                                    TilesPosition[row][col] = TilesPosition[row+1][col];
-                                    TilesPosition[row+1][col] = TilesPosition[row+2][col];
-                                    TilesPosition[row+2][col] = 0;
-                                    
-                                }
-                            }
-                        }
-                        // Check if the 2nd tile in column is zero
-                        else if(TilesPosition[row+1][col] == 0){
-                                // Check if the 2nd & 3rd tiles are equal
-                                if(TilesPosition[row][col] == TilesPosition[row+2][col]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row+2][col]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row+2][col] = 0;
-                                    
-                                }else{
-                                    TilesPosition[row+1][col] = TilesPosition[row+2][col];
-                                    TilesPosition[row+2][col] = 0;
-                                    
-                                }
-                                // check if the 1st & 2nd tile are equal
-                            }else if(TilesPosition[row][col] == TilesPosition[row+1][col]){
-                                    TilesPosition[row][col] = merge(TilesPosition[row+1][col]);
-                                    score += TilesPosition[row][col];
-                                    TilesPosition[row+1][col] = TilesPosition[row+2][col];
-                                    TilesPosition[row+2][col] = 0;
-                                    
-                                }else if(TilesPosition[row+1][col] == TilesPosition[row+2][col]){
-                                        TilesPosition[row+1][col] = merge(TilesPosition[row+2][col]);
-                                        score += TilesPosition[row+1][col];
-                                        TilesPosition[row+2][col] = 0;
-
-                        }else if(TilesPosition[row][col] != 0 && TilesPosition[row][col] == TilesPosition[row+1][col]){
-                            TilesPosition[row][col] = merge(TilesPosition[row+1][col]);
-                            score += TilesPosition[row][col];
-                            TilesPosition[row+1][col] = 0;
-                        }
-                    }
+                moveRow();
                 break;
             default:
                 break;                
@@ -283,66 +192,38 @@ class Tiles {
                 }
             }
         }
-        validMove = !arrayOp(TilesPosition,oldTilesPosition,"Compare");
+        validMove = !arrayCompare(TilesPosition,oldTilesPosition);
     } // move
     
-    private boolean arrayOp(int [][] src, int [][] out, String op){
-        switch(op){
-            case "Compare":
-                for(int row =0 ; row<src.length ; row++){
+    private boolean arrayCompare(int [][] src, int [][] out){
+        for(int row =0 ; row<src.length ; row++){
                     for(int col =0 ; col<src.length ; col++){
                         if(src[row][col]!=out[row][col])
                             return false;
                     }
-
             }
-                break;
-            case "Copy":
-                for(int row =0 ; row<3 ; row++){
+        return true;
+    }// arrayCompare
+    
+    private boolean arrayCopy(int [][] src, int [][] out){
+        for(int row =0 ; row<3 ; row++){
                     for(int col =0 ; col<3 ; col++){
-                        out[row][col]=src[row][col];
-                        
+                        out[row][col]=src[row][col];        
                     }
             }
-                break;
-                default:
-                    break;          
-        }
         return true;
-    }
-    
-    protected int merge(int lbl){
+    }// arrayCopy
+        
+    protected int tileMerge(int lbl){
         double old_Lbl_Pow = Math.log(lbl)/Math.log(2);
         return (int)Math.pow(2,old_Lbl_Pow+1);
-    }
+    }// tileMerge
     
     protected void setSwapDir(swapDirection dir){
         this.swapDir = dir;
     } 
     
-    protected void setHscore(){
-        try{
-        if (score>Hscore)
-            this.Hscore = this.score;
-        BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\user\\Documents\\NetBeansProjects\\Project\\src\\resources"));
-        writer.newLine();
-        writer.write(Integer.toString(Hscore));
-        writer.flush();
-        writer.close();
-        }catch(Exception e){
-            
-        }
-    }
-    
-    public int getScore(){
-        return this.score;
-    }
-
     protected boolean checkMove(){return validMove;}
-    
-    protected int getHscore(){
-        return this.Hscore;
-    } 
     
     protected boolean noEmptyTile(){
         boolean returnValue = true;
@@ -355,7 +236,7 @@ class Tiles {
             }   
         }
         return returnValue;
-    }
+    }// noEmptyTile
     
     protected boolean gameOver(){
         if(noEmptyTile()){
@@ -371,6 +252,16 @@ class Tiles {
         }
         return false;
     }// gameOver
+    
+    protected boolean winner(){
+        for(int row =0 ; row<TilesPosition.length ; row++){
+                    for(int col =0 ; col<TilesPosition.length ; col++){
+                        if(TilesPosition[row][col] == 2048)
+                            return true;
+                    }
+        }
+        return false;
+    }// winner
 
     protected Color getColor(int number){
         switch(number){
@@ -416,7 +307,7 @@ class Tiles {
 
         } //  generateTile
     
-    protected void restartgame(){
+    protected void restartGame(){
         TilesArray.clear();
         int[][] newTilesPosition = new int[][]{
   { 0, 0, 0 },
@@ -425,8 +316,8 @@ class Tiles {
         this.TilesPosition = newTilesPosition;
         generateTile(true);
         generateTile(true);
-        score = 0;
-    }
+        s.setScore(0);
+    }// restartGame
     
     public void draw(Graphics g){
         for(int i=0;i<TilesArray.size();i++)
